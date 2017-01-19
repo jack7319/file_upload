@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <title>注册</title>
+   <link rel="stylesheet" href="css/style.css" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <section class="main-cantainer">
+    	<div class="page-title">
+            <span class='floatl'>注册</span>
+        </div>
+        <form action="" method="post" id="register_form_btn">
+            <div class="form-group">
+                <label for="" class="floatl">用户名:</label>
+                <input type="text" class='form-input floatr' name="phone" id="phone" placeholder="请输入"/>
+            </div>
+            <div class="form-group">
+                <label for="" class="floatl">密码:</label>
+                <input type="password" class='form-input floatr' name="password" id="password" />
+            </div>
+                <div class="form-group">
+                <button class="input-btn success-btn" type="button" id="getCode_btn">获取验证码</button>
+                <input type="text" class='form-input floatr' name="msgCode" id="msgCode"/>
+            </div>
+            <div class='btn-box floatl' style="width:50%">
+                <button type="button" id="register_btn" class="form-btn cancel-btn">注册</button>
+            </div>
+            <div class='btn-box floatr' style="width:50%">
+                <button type="button" onclick="location.href='login'" class="form-btn success-btn">登录</button>
+            </div>
+        </form>
+    </section>
+    <script src="http://apps.bdimg.com/libs/zepto/1.1.4/zepto.min.js"></script>
+    <script src="js/plug/plug-form.js" th:src="@{/js/plug/plug-form.js}"></script>
+    <script src="js/httpPath.js" th:src="@{/js/httpPath.js}"></script>
+    <script src="js/userinfo_validate.js" th:src="@{/js/userinfo_validate.js}"></script>
+    <script src="js/user/signIn.js" th:src="@{/js/user/signIn.js}"></script>
+</body>
+</html>

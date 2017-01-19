@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <title>d</title>
+    <script type="text/javascript" src=""></script>
+	<link rel="stylesheet" type="text/css" href="webuploader-0.1.5/webuploader.css" th:href="@{/webuploader-0.1.5/webuploader.css}">
+	<!-- 新 Bootstrap 核心 CSS 文件 -->
+	<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+	<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+	<script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+	<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+	<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="webuploader-0.1.5/webuploader.js" th:src="@{/webuploader-0.1.5/webuploader.js}"></script>
+	<script type="text/javascript" src="js/jquery-1.10.2.min.js" th:src="@{/js/jquery-1.10.2.min.js}"></script>
+	<script type="text/javascript" src="js/projectpath.js" th:src="@{/js/projectpath.js}"></script>
+</head>
+
+<body>
+<span style="font-size:14px;"><div id="uploader-demo">  
+    <!--用来存放item-->  
+    <div id="thelist" class="uploader-list"></div>  
+    <div>  
+     <div id="filePicker">选择文件</div>  
+     <button id="ctlBtn" class="btn btn-default">开始上传</button>  
+    </div>  
+</div>  
+</span> 
+<script type="text/javascript" th:inline="javascript">
+$(function(){  
+	   /*init webuploader*/  
+	   var $list=$("#thelist");   //这几个初始化全局的百度文档上没说明，好蛋疼。  
+	   var $btn =$("#ctlBtn");   //开始上传  
+	   var thumbnailWidth = 100;   //缩略图高度和宽度 （单位是像素），当宽高度是0~1的时候，是按照百分比计算，具体可以看api文档  
+	   var thumbnailHeight = 100; 
+	   var fileMd5;
+	   var chunk;
+	  
+	   var uploader = WebUploader.create({  
+	       // 选完文件后，是否自动上传。  
+	       auto: false,  
+	       // swf文件路径  
+	       swf: projectpath+'/webuploader-0.1.5/Uploader.swf', 
+	     	//是否要分片处理大文件上传。
+           chunked: true,
+           // 如果要分片，分多大一片？ 默认大小为5M.
+           chunkSize: 10*1024*1024,
+           // 如果某个分片由于网络问题出错，允许自动重传多少次？
+           chunkRetry: 3,
+           // 上传并发数。允许同时最大上传进程数[默认值：3]
+           threads: 1,
+           // 去重
+           duplicate: true,
+	       // 文件接收服务端。  
+	       server: projectpath+'/t/ajax',  
+	       // 选择文件的按钮。可选。  
+	       // 内部根据当前运行是创建，可能是input元素，也可能是flash.  
+	       pick: '#filePicker',  
+	       // 只允许选择图片文件。  
+	       accept: {  
+	           title: 'Images',  
+	           extensions: 'gif,jpg,jpeg,bmp,png,doc,docx,pdf,rar,zip',  
+	           mimeTypes: "image/"  
+	       },  
+	       method:'POST',  
+	   });  
+		// 当有文件被添加进队列的时候
+	   uploader.on( 'fileQueued', function( file ) {
+	       $list.append( '<div id="' + file.id + '" class="item">' +
+	           '<h4 class="info">' + file.name + '</h4>' +
+	           '<p class="state">等待上传...</p>' +
+	       '</div>' );
+	   });
+	   // 文件上传过程中创建进度条实时显示。  
+	   uploader.on( 'uploadProgress', function( file, percentage ) {
+	       var $li = $( '#'+file.id ),
+	           $percent = $li.find('.progress .progress-bar');
+	       // 避免重复创建
+	       if ( !$percent.length ) {
+	           $percent = $('<div class="progress progress-striped active">' +
+	             '<div class="progress-bar" role="progressbar" style="width: 0%">' +
+	             '</div>' +
+	           '</div>').appendTo( $li ).find('.progress-bar');
+	       }
+	       $li.find('p.state').text('上传中');
+	       $percent.css( 'width', percentage * 100 + '%' );
+	   });
+	    uploader.on( 'uploadSuccess', function( file ) {
+		    $( '#'+file.id ).find('p.state').text('已上传');
+		});
+		uploader.on( 'uploadError', function( file ) {
+		    $( '#'+file.id ).find('p.state').text('上传出错');
+		});
+		uploader.on( 'uploadComplete', function( file ) {
+		    $( '#'+file.id ).find('.progress').fadeOut();
+		});
+		$btn.on( 'click', function() {  
+	        console.log("上传...");  
+	        uploader.upload();  
+	        console.log("上传成功");  
+	     }); 
+		
+		/** 实现webupload hook，触发上传前，中，后的调用关键 **/
+		WebUploader.Uploader.register({
+		    "before-send-file": "beforeSendFile",  // 整个文件上传前
+		    "before-send": "beforeSend",           // 每个分片上传前
+		    "after-send-file": "afterSendFile"     // 分片上传完毕
+		}, {
+		    beforeSendFile: function (file) {        
+		        var task = new $.Deferred();
+		        var start = new Date().getTime();
+
+		        //拿到上传文件的唯一名称，用于断点续传
+		        fileMd5 = md5(file.name + file.size);
+		        
+		        $.ajax({
+		            type: "POST",
+		            url: check_url,   // 后台url地址
+		            data: {
+		                type: "init",
+		                fileMd5: fileMd5,
+		            },
+		            cache: false,
+		            async: false,  // 同步
+		            timeout: 1000, //todo 超时的话，只能认为该文件不曾上传过
+		            dataType: "json"
+		        }).then(function (data, textStatus, jqXHR) {            
+		            if (data.erroce==1) { //若存在，这返回失败给WebUploader，表明该文件不需要上传                
+		                task.reject();
+		                // 业务逻辑...
+
+		            } else {
+		                task.resolve();
+		            }
+		        }, function (jqXHR, textStatus, errorThrown) { //任何形式的验证失败，都触发重新上传
+		            task.resolve();
+		        });
+
+		        return $.when(task);
+		    }
+		    , beforeSend: function (block) {
+		        //分片验证是否已传过，用于断点续传
+		        var task = new $.Deferred();
+		        $.ajax({
+		            type: "POST",
+		            url: check_url,
+		            data: {
+		                type: "block",
+		                fileMd5:fileMd5,
+		                chunk: block.chunk,
+		                chunkSize: block.end - block.start
+		            },
+		            cache: false,
+		            async: false,  // 同步
+		            timeout: 1000, //todo 超时的话，只能认为该分片未上传过
+		            dataType: "json"
+		        }).then(function (data, textStatus, jqXHR) {
+		            if (data.is_exists) { //若存在，返回失败给WebUploader，表明该分块不需要上传
+		                task.reject();
+		            } else {
+		                task.resolve();
+		            }
+		        }, function (jqXHR, textStatus, errorThrown) { //任何形式的验证失败，都触发重新上传
+		            task.resolve();
+		        });
+		        return $.when(task);
+		    }
+		    , afterSendFile: function (file) {        
+		        var chunksTotal = Math.ceil(file.size / chunkSize);
+		        if (chunksTotal > 1) {
+		            //合并请求
+		            var task = new $.Deferred();
+		            $.ajax({
+		                type: "POST",
+		                url: check_url,
+		                data: {
+		                    type: "merge",
+		                    name: file.name,
+		                    chunks: chunksTotal,
+		                    size: file.size,
+		                    md
+		                },
+		                cache: false,
+		                async: false,  // 同步
+		                dataType: "json"
+		            }).then(function (data, textStatus, jqXHR) {
+		                // 业务逻辑...
+		                
+		            }, function (jqXHR, textStatus, errorThrown) {
+		                current_uploader.uploader.trigger('uploadError');
+		                task.reject();
+		            });
+		            return $.when(task);
+		        }
+		    }});
+})
+</script>
+</html>

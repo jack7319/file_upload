@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="renderer" content="webkit">
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<title>登录人</title>
+</head>
+
+<body>
+		<form id="login_from" method="post" >
+				<label>队列名称:</label> 
+				<input type="text" id="quenueName">
+				<br/>
+				<label>发送的消息:</label> 
+				<input type="text" id="message" >
+				<br/>
+				<input type="button" id="_btn" value="发送消息"/>
+		</form>
+	<script src="js/jquery-1.10.2.min.js" th:src="@{/js/jquery-1.10.2.min.js}"></script>
+	<script src="js/httpPath.js" th:src="@{/js/httpPath.js}"></script>
+	<script src="js/userinfo_validate.js" th:src="@{/js/userinfo_validate.js}"></script>
+</body>
+<script type="text/javascript" th:inline="javascript">
+$(function(){
+	$('#_btn').click(function(){
+		var qname=$('#quenueName').val().trim();
+		var message=$('#message').val().trim();
+		if(!validate_empty("quenueName",'队列名称')){
+			return false;
+		}
+		if(!validate_empty('message',"密码")){
+			return false;
+		}
+		$.ajax({
+			url:userpath+'/mq/'+qname+'/'+message,
+			type:'post',
+			success:function(data){
+				if(data.errcode==0){
+					alert('消息发送成功！');
+				}else{
+					alert('消息发送失败！');
+				}
+			}
+		})
+	})
+})
+</script>
+</html>
