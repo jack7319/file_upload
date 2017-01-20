@@ -32,7 +32,7 @@
 			<div class="form-group">
 				<label for="" class="floatl">请输入验证码:</label>
 				<input type="text" class='form-input floatr' name="msgCode" placeholder="请输入验证码">
-				<img th:src="@{/createImage}" src="createImage" title="点击更换" id="code_image"/>
+				<img th:src="@{/createImage}" src="createImage" title="点击更换" onclick="change()" id="code_image"/>
 <!-- 				<button type="button"  -->
 <!-- 					class="form-btn success-btn">点击更换验证码</button> -->
 			</div>

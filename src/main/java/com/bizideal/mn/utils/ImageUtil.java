@@ -20,7 +20,7 @@ public final class ImageUtil {
 	private static final char[] chars = { '0', '1', '2', '3', '4', '5', '6',
 			'7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I' };
 	private static final int SIZE = 4;
-	private static final int LINES = 5;
+	private static final int LINES = 16;
 	private static final int WIDTH = 100;
 	private static final int HEIGHT = 60;
 	private static final int FONT_SIZE = 30;
