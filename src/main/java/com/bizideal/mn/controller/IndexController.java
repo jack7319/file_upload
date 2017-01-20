@@ -48,8 +48,8 @@ public class IndexController {
 		return "loginByCode";
 	}
 
-	// 获取图形验证码
-	@RequestMapping("/createImage")
+	// 获取图形验证码sdssss
+	@RequestMapping("/createImage") 
 	public void createImage(HttpServletResponse response,
 			HttpServletRequest request) throws Exception {
 		Map<String, BufferedImage> imageMap = ImageUtil.createImage();
